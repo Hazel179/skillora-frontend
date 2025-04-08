@@ -2,21 +2,14 @@ var app = new Vue({
   el: "#app",
   data: {
     page: "homePage",
-    // sorting variables.
     sortCriteria: "name",
     sortOrder: "ascending",
-    // store search input.
     searchQuery: "",
-    // show checkOut.
     showCheckOut: true,
-    // show the modal
     showModal: false,
-    // lessons.
     lessons: [],
     submitted: false,
     filteredLessons: [],
-
-    // data to keep truck of the order information.
     order: {
       firstName: "",
       lastName: "",
@@ -24,7 +17,6 @@ var app = new Vue({
       state: "",
       phoneNumber: "",
     },
-    // states
     states: {
       AD: "Abu Dhabi",
       DU: "Dubai",
@@ -37,85 +29,63 @@ var app = new Vue({
     cart: [],
   },
   methods: {
-    // fetch all lessons.
     async fetchLessons() {
       try {
         const response = await fetch(
-          "https://juststudy-server.onrender.com/api/lessons"
+          "https://skillora-server.onrender.com/api/lessons"
         );
-        if (!response.ok) throw new Error("Failed to fetch lessons ");
+        if (!response.ok) throw new Error("Failed to fetch lessons");
         const data = await response.json();
         this.lessons = data;
         this.filteredLessons = data;
       } catch (err) {
-        console.error("Failed to fetch lessons");
+        console.error("Failed to fetch lessons", err.message);
       }
     },
-    // add Lessons in the cart and reduces spaces.
     addToCart(lessonId) {
-      // Find the lesson by _id
       const lesson = this.lessons.find((lesson) => lesson._id === lessonId);
-
       if (lesson && lesson.spaces > 0) {
-        // Create a copy of the lesson to store in the cart
         const cartItem = { ...lesson };
-
-        //decreate the available spaces.
         cartItem.spaces--;
-
-        // Add the lesson to the cart.
         this.cart.push(cartItem);
-
-        // Decrement spaces.
         lesson.spaces--;
       }
     },
-    //updating the lessons spaces using a fetch request.
-
     async updateLessonSpaces(id, spaces) {
       try {
         const response = await fetch(
-          `https://juststudy-server.onrender.com/api/lessons/${id}`,
+          `https://skillora-server.onrender.com/api/lessons/${id}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ spaces }),
           }
         );
-        if (!response.ok) throw new Error("failed to update the spaces");
+        if (!response.ok) throw new Error("Failed to update spaces");
       } catch (err) {
         console.error(err.message);
       }
     },
-    // showCartItems
-    showCartItems: function () {
+    showCartItems() {
       if (this.cart.length > 0) {
-        return (this.showProduct = !this.showProduct);
-      } else if (this.cart.length == 0) {
-        return (this.showProduct = true);
+        this.showProduct = !this.showProduct;
       } else {
         alert("No items in cart");
       }
     },
-    // remove items from the cart.
-    removeItem: function (index) {
+    removeItem(index) {
       const removedItem = this.cart[index];
-
       const originalLesson = this.lessons.find(
         (lesson) => lesson._id === removedItem._id
       );
       if (originalLesson) {
         originalLesson.spaces++;
       }
-
       this.updateLessonSpaces(originalLesson._id, originalLesson.spaces);
       this.cart.splice(index, 1);
     },
-    // sort method
-
-    sortLessons: function () {
+    sortLessons() {
       const modifier = this.sortOrder === "ascending" ? 1 : -1;
-
       this.filteredLessons.sort((a, b) => {
         if (this.sortCriteria === "name") {
           return modifier * (a.subject > b.subject ? 1 : -1);
@@ -130,8 +100,7 @@ var app = new Vue({
         }
       });
     },
-    // Navigate Pages.
-    navitagePages: function (page) {
+    navitagePages(page) {
       if (this.page === "homePage") {
         this.page = "productPage";
       } else if (this.page === "productPage") {
@@ -140,14 +109,10 @@ var app = new Vue({
         this.page = "productPage";
       }
     },
-    naviageToCheckOut(page) {
-      this.page = page;
-    },
-    // submit order.
     async handleSubmit() {
       try {
         const response = await fetch(
-          "https://juststudy-server.onrender.com/api/lessons/order",
+          "https://skillora-server.onrender.com/api/lessons/order",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -163,12 +128,12 @@ var app = new Vue({
           }
         );
 
-        if (!response.ok) throw new Error("order submission failed");
+        if (!response.ok) throw new Error("Order submission failed");
 
         await Promise.all(
           this.cart.map((lesson) =>
             fetch(
-              `https://juststudy-server.onrender.com/api/lessons/${lesson._id}`,
+              `https://skillora-server.onrender.com/api/lessons/${lesson._id}`,
               {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -178,51 +143,31 @@ var app = new Vue({
           )
         );
         this.submitted = true;
-        //refresh lessons to update the changes.
         this.fetchLessons();
-
         setTimeout(() => {
-          this.order = {
-            firstName: "",
-            lastName: "",
-            email: "",
-            state: "",
-            phoneNumber: "",
-          };
+          this.order = { firstName: "", lastName: "", email: "", state: "", phoneNumber: "" };
           this.cart = [];
         }, 100000);
         this.showModal = true;
       } catch (err) {
-        console.error("failed to submit order: ", err.message);
+        console.error("Failed to submit order", err.message);
       }
-      // You can handle form data here.
     },
-
-    // done with order.
-
     doneWithOrder() {
       this.page = "homePage";
-      // after going to the homePage.
-
       this.showModal = false;
       this.submitted = false;
     },
-    //method for searching lessons.
     async searchLessons() {
       const query = this.searchQuery.trim();
       if (query === "") {
-        // Reset the filteredLessons if the query is empty
         this.filteredLessons = [...this.lessons];
         return;
       }
-
       try {
         const response = await fetch(
-          `https://juststudy-server.onrender.com/api/search?q=${encodeURIComponent(
-            query
-          )}`
+          `https://skillora-server.onrender.com/api/search?q=${encodeURIComponent(query)}`
         );
-
         if (!response.ok) throw new Error("Search failed");
         const data = await response.json();
         this.filteredLessons = data;
@@ -231,7 +176,6 @@ var app = new Vue({
       }
     },
   },
-  // watcher function.
   watch: {
     isCartEmpty(newValue) {
       if (newValue) {
@@ -240,12 +184,10 @@ var app = new Vue({
     },
   },
   computed: {
-    countCartItems: function () {
+    countCartItems() {
       return this.cart.length || "";
     },
-
-    // check if the cart is empty.
-    isCartEmpty: function () {
+    isCartEmpty() {
       return this.cart.length === 0;
     },
   },
