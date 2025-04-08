@@ -53,7 +53,7 @@
     <!-- Lessons Grid -->
     <section class="lessons" v-if="page === 'homePage'">
       <div class="lesson-card" v-for="lesson in filteredLessons" :key="lesson._id">
-        <img :src="lesson.images" alt="lesson image" class="lesson-img" />
+        <img :src="`https://skillora-server.onrender.com/images/${lesson.images}`" alt="lesson image" class="lesson-img" />
         <p class="lesson-title">Subject: {{ lesson.subject }}</p>
         <p>Price: ${{ lesson.price }}</p>
         <p>Location: {{ lesson.location }}</p>
