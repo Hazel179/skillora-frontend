@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skillora</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <h1 class="logo">Skillora</h1>
+        <nav class="nav-links">
+          <a href="#">Home</a>
+          <a href="#">Courses</a>
+          <a href="#">About</a>
+          <a href="#">Contact</a>
+        </nav>
+        <button v-if="!isCartEmpty" @click="showCartItems; navitagePages('productPage')" class="cart-button">
+          {{ countCartItems }} <i class="fa fa-cart-plus"></i> Cart
+        </button>
+        <button v-else disabled class="cart-button disabled">
+          {{ countCartItems }} <i class="fa fa-cart-plus"></i> Cart
+        </button>
+      </div>
+    </header>
+
+    <!-- Controls -->
+    <section v-if="page === 'homePage'" class="controls">
+      <div class="sort">
+        <label for="sortCriteria">Sort by:</label>
+        <select v-model="sortCriteria" @change="sortLessons">
+          <option value="name">Name</option>
+          <option value="location">Location</option>
+          <option value="price">Price</option>
+          <option value="space">Spaces</option>
+          <option value="rating">Ratings</option>
+        </select>
+        <select v-model="sortOrder" @change="sortLessons">
+          <option value="ascending">Ascending</option>
+          <option value="descending">Descending</option>
+        </select>
+      </div>
+      <div class="search">
+        <input type="text" placeholder="Search for lessons..." v-model="searchQuery" @input="searchLessons" />
+      </div>
+    </section>
+
+    <!-- Lessons Grid -->
+    <section class="lessons" v-if="page === 'homePage'">
+      <div class="lesson-card" v-for="lesson in filteredLessons" :key="lesson._id">
+        <img :src="lesson.images" alt="lesson image" class="lesson-img" />
+        <p class="lesson-title">Subject: {{ lesson.subject }}</p>
+        <p>Price: ${{ lesson.price }}</p>
+        <p>Location: {{ lesson.location }}</p>
+        <p>Spaces: {{ lesson.spaces }}</p>
+        <p>
+          Ratings:
+          <span v-for="rate in lesson.ratings">★</span>
+          <span v-for="rate in 5 - lesson.ratings">☆</span>
+        </p>
+        <button v-if="lesson.spaces > 0" @click="addToCart(lesson._id)" class="btn add">Add To Cart</button>
+        <button v-else disabled class="btn no-space">No Spaces</button>
+      </div>
+    </section>
+
+    <!-- Cart Page -->
+    <section v-if="page === 'productPage' && !isCartEmpty">
+      <h2 class="section-title">Cart Items</h2>
+      <div class="cart-list cart-big">
+        <div class="cart-card" v-for="(items, index) in cart" :key="index">
+          <img :src="items.images" class="cart-img" />
+          <div class="cart-info">
+            <p>Subject: {{ items.subject }}</p>
+            <p>Price: ${{ items.price }}</p>
+            <p>Location: {{ items.location }}</p>
+            <button @click="removeItem(index)" class="btn remove">Remove</button>
+          </div>
+        </div>
+      </div>
+      <div class="checkout-wrapper">
+        <button @click="naviageToCheckOut('checkOutPage')" class="btn checkout">Checkout</button>
+      </div>
+    </section>
+
+    <!-- Checkout -->
+    <section v-if="page === 'checkOutPage'">
+      <div class="checkout-form">
+        <h2 class="section-title">Checkout</h2>
+        <form @submit.prevent="handleSubmit">
+          <input type="text" placeholder="First Name" v-model="order.firstName" pattern="[A-Za-z]+" required />
+          <input type="text" placeholder="Last Name" v-model="order.lastName" pattern="[A-Za-z]+" required />
+          <input type="email" placeholder="Email" v-model="order.email" required />
+          <input type="text" placeholder="City" v-model="order.city" required />
+          <select v-model="order.state" required>
+            <option disabled selected>Select your state</option>
+            <option v-for="(state, key) in states" :value="state">{{ key }}</option>
+          </select>
+          <input type="text" placeholder="Zip Code" v-model="order.zipCode" required />
+          <input type="text" placeholder="Phone Number" pattern="[\\+\\d\\-\\(\\)\\s]{7,15}" v-model="order.phoneNumber" required />
+          <select v-model="order.deliveryMethod" required>
+            <option disabled selected>Select delivery method</option>
+            <option>Home Delivery</option>
+            <option>Pick Up</option>
+          </select>
+          <button type="submit" class="btn submit">Submit</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Modal -->
+    <div v-if="showModal && submitted" class="modal-overlay">
+      <div class="modal">
+        <p class="modal-message">
+          Hello {{ order.firstName }} {{ order.lastName }} from {{ order.city }}, {{ order.state }}.<br />
+          Your order has been placed successfully. Thank you for choosing Skillora!
+        </p>
+        <i class="fa fa-circle-check modal-icon"></i>
+        <button @click="doneWithOrder" class="btn done">Done</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <p>&copy; 2025 Skillora. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Help</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
