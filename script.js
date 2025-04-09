@@ -29,11 +29,10 @@ var app = new Vue({
     cart: [],
   },
   methods: {
+    // Fetch lessons from the server
     async fetchLessons() {
       try {
-        const response = await fetch(
-          "https://skillora-server.onrender.com/api/lessons"
-        );
+        const response = await fetch("https://skillora-server.onrender.com/api/lessons");
         if (!response.ok) throw new Error("Failed to fetch lessons");
         const data = await response.json();
         this.lessons = data;
@@ -43,58 +42,7 @@ var app = new Vue({
       }
     },
 
-    // Navigation between pages
-    navigatePages(page) {
-      this.page = page;
-    },
-
-    addToCart(lessonId) {
-      const lesson = this.lessons.find((lesson) => lesson._id === lessonId);
-      if (lesson && lesson.spaces > 0) {
-        const cartItem = { ...lesson };
-        cartItem.spaces--;
-        this.cart.push(cartItem);
-        lesson.spaces--;
-      }
-    },
-
-    async updateLessonSpaces(id, spaces) {
-      try {
-        const response = await fetch(
-          `https://skillora-server.onrender.com/api/lessons/${id}`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ spaces }),
-          }
-        );
-        if (!response.ok) throw new Error("Failed to update spaces");
-      } catch (err) {
-        console.error(err.message);
-      }
-    },
-
-    showCartItems() {
-      if (this.cart.length > 0) {
-        this.showProduct = !this.showProduct;
-        this.page = 'productPage'; // Navigate to the cart page
-      } else {
-        alert("No items in cart");
-      }
-    },
-
-    removeItem(index) {
-      const removedItem = this.cart[index];
-      const originalLesson = this.lessons.find(
-        (lesson) => lesson._id === removedItem._id
-      );
-      if (originalLesson) {
-        originalLesson.spaces++;
-      }
-      this.updateLessonSpaces(originalLesson._id, originalLesson.spaces);
-      this.cart.splice(index, 1);
-    },
-
+    // Sorting function
     sortLessons() {
       const modifier = this.sortOrder === "ascending" ? 1 : -1;
       this.filteredLessons.sort((a, b) => {
@@ -112,6 +60,35 @@ var app = new Vue({
       });
     },
 
+    // Method to navigate pages
+    navigatePages(page) {
+      this.page = page;
+    },
+
+    // Add lesson to the cart
+    addToCart(lessonId) {
+      const lesson = this.lessons.find((lesson) => lesson._id === lessonId);
+      if (lesson && lesson.spaces > 0) {
+        const cartItem = { ...lesson };
+        cartItem.spaces--;
+        this.cart.push(cartItem);
+        lesson.spaces--;
+      }
+    },
+
+    // Remove item from the cart
+    removeItem(index) {
+      const removedItem = this.cart[index];
+      const originalLesson = this.lessons.find(
+        (lesson) => lesson._id === removedItem._id
+      );
+      if (originalLesson) {
+        originalLesson.spaces++;
+      }
+      this.cart.splice(index, 1);
+    },
+
+    // Submit order function
     async handleSubmit() {
       try {
         const response = await fetch(
@@ -130,9 +107,9 @@ var app = new Vue({
             }),
           }
         );
-
         if (!response.ok) throw new Error("Order submission failed");
 
+        // After order submission, update spaces in the database for each lesson
         await Promise.all(
           this.cart.map((lesson) =>
             fetch(
@@ -147,23 +124,28 @@ var app = new Vue({
         );
 
         this.submitted = true;
-        this.fetchLessons();
+        this.fetchLessons();  // Refresh lessons after order submission
+
+        // Reset form and cart after submission
         setTimeout(() => {
           this.order = { firstName: "", lastName: "", email: "", state: "", phoneNumber: "" };
           this.cart = [];
         }, 100000);
+
         this.showModal = true;
       } catch (err) {
         console.error("Failed to submit order", err.message);
       }
     },
 
+    // Handle modal close
     doneWithOrder() {
       this.page = "homePage";
       this.showModal = false;
       this.submitted = false;
     },
 
+    // Search function
     async searchLessons() {
       const query = this.searchQuery.trim();
       if (query === "") {
@@ -198,3 +180,4 @@ var app = new Vue({
     });
   },
 });
+

@@ -15,12 +15,12 @@
       <div class="container">
         <h1 class="logo">Skillora</h1>
         <nav class="nav-links">
-          <a href="#">Home</a>
-          <a href="#">Courses</a>
-          <a href="#">About</a>
-          <a href="#">Contact</a>
+          <a href="#" @click.prevent="navigatePages('homePage')">Home</a>
+          <a href="#" @click.prevent="navigatePages('homePage')">Courses</a>
+          <a href="#" @click.prevent="navigatePages('homePage')">About</a>
+          <a href="#" @click.prevent="navigatePages('homePage')">Contact</a>
         </nav>
-        <button v-if="!isCartEmpty" @click="showCartItems" class="cart-button">
+        <button v-if="!isCartEmpty" @click="navigatePages('productPage')" class="cart-button">
           {{ countCartItems }} <i class="fa fa-cart-plus"></i> Cart
         </button>
         <button v-else disabled class="cart-button disabled">
@@ -72,18 +72,18 @@
     <section v-if="page === 'productPage' && !isCartEmpty">
       <h2 class="section-title">Cart Items</h2>
       <div class="cart-list cart-big">
-        <div class="cart-card" v-for="(items, index) in cart" :key="index">
-          <img :src="`https://skillora-server.onrender.com/images/${items.images}`" class="cart-img" />
+        <div class="cart-card" v-for="(item, index) in cart" :key="index">
+          <img :src="`https://skillora-server.onrender.com/images/${item.images}`" class="cart-img" />
           <div class="cart-info">
-            <p>Subject: {{ items.subject }}</p>
-            <p>Price: ${{ items.price }}</p>
-            <p>Location: {{ items.location }}</p>
+            <p>Subject: {{ item.subject }}</p>
+            <p>Price: ${{ item.price }}</p>
+            <p>Location: {{ item.location }}</p>
             <button @click="removeItem(index)" class="btn remove">Remove</button>
           </div>
         </div>
       </div>
       <div class="checkout-wrapper">
-        <button @click="handleSubmit" class="btn checkout">Checkout</button>
+        <button @click="navigatePages('checkOutPage')" class="btn checkout">Checkout</button>
       </div>
     </section>
 
