@@ -27,6 +27,7 @@ var app = new Vue({
       RK: "Ras Al Khaimah",
     },
     cart: [],
+    showProduct: false, // Variable to track cart visibility
   },
   methods: {
     async fetchLessons() {
@@ -69,6 +70,11 @@ var app = new Vue({
     showCartItems() {
       if (this.cart.length > 0) {
         this.showProduct = !this.showProduct;
+        if (this.showProduct) {
+          this.page = 'productPage';  // Navigate to product page when cart is shown
+        } else {
+          this.page = 'homePage';  // Go back to homepage when cart is hidden
+        }
       } else {
         alert("No items in cart");
       }
@@ -100,7 +106,6 @@ var app = new Vue({
         }
       });
     },
-    // Corrected typo: renamed 'navitagePages' to 'navigatePages'
     navigatePages(page) {
       if (this.page === "homePage") {
         this.page = "productPage";
@@ -113,7 +118,7 @@ var app = new Vue({
     async handleSubmit() {
       try {
         const response = await fetch(
-          "https://skillora-server.onrender.com/api/lessons/orders",
+          "https://skillora-server.onrender.com/api/lessons/order",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
