@@ -100,7 +100,8 @@ var app = new Vue({
         }
       });
     },
-    navitagePages(page) {
+    // Corrected typo: renamed 'navitagePages' to 'navigatePages'
+    navigatePages(page) {
       if (this.page === "homePage") {
         this.page = "productPage";
       } else if (this.page === "productPage") {
@@ -112,7 +113,7 @@ var app = new Vue({
     async handleSubmit() {
       try {
         const response = await fetch(
-          "https://skillora-server.onrender.com/api/lessons/order",
+          "https://skillora-server.onrender.com/api/lessons/orders",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
