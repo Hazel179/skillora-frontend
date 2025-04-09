@@ -16,6 +16,9 @@ var app = new Vue({
       email: "",
       state: "",
       phoneNumber: "",
+      city: "",
+      zipCode: "",
+      deliveryMethod: "",
     },
     states: {
       AD: "Abu Dhabi",
@@ -27,9 +30,9 @@ var app = new Vue({
       RK: "Ras Al Khaimah",
     },
     cart: [],
-    showProduct: false, // Variable to track cart visibility
   },
   methods: {
+    // Fetch lessons from the backend
     async fetchLessons() {
       try {
         const response = await fetch(
@@ -43,6 +46,8 @@ var app = new Vue({
         console.error("Failed to fetch lessons", err.message);
       }
     },
+    
+    // Add a lesson to the cart
     addToCart(lessonId) {
       const lesson = this.lessons.find((lesson) => lesson._id === lessonId);
       if (lesson && lesson.spaces > 0) {
@@ -52,6 +57,8 @@ var app = new Vue({
         lesson.spaces--;
       }
     },
+
+    // Update lesson spaces in the backend
     async updateLessonSpaces(id, spaces) {
       try {
         const response = await fetch(
@@ -67,18 +74,18 @@ var app = new Vue({
         console.error(err.message);
       }
     },
+
+    // Show the cart page
     showCartItems() {
       if (this.cart.length > 0) {
         this.showProduct = !this.showProduct;
-        if (this.showProduct) {
-          this.page = 'productPage';  // Navigate to product page when cart is shown
-        } else {
-          this.page = 'homePage';  // Go back to homepage when cart is hidden
-        }
+        this.page = 'productPage'; // Navigate to the cart page
       } else {
         alert("No items in cart");
       }
     },
+
+    // Remove an item from the cart
     removeItem(index) {
       const removedItem = this.cart[index];
       const originalLesson = this.lessons.find(
@@ -90,6 +97,8 @@ var app = new Vue({
       this.updateLessonSpaces(originalLesson._id, originalLesson.spaces);
       this.cart.splice(index, 1);
     },
+
+    // Sort lessons based on selected criteria
     sortLessons() {
       const modifier = this.sortOrder === "ascending" ? 1 : -1;
       this.filteredLessons.sort((a, b) => {
@@ -106,15 +115,13 @@ var app = new Vue({
         }
       });
     },
+
+    // Navigate between pages (homePage, productPage, checkoutPage)
     navigatePages(page) {
-      if (this.page === "homePage") {
-        this.page = "productPage";
-      } else if (this.page === "productPage") {
-        this.page = "homePage";
-      } else if (this.page === "checkOutPage") {
-        this.page = "productPage";
-      }
+      this.page = page;
     },
+
+    // Handle the checkout process (submit order and update spaces)
     async handleSubmit() {
       try {
         const response = await fetch(
@@ -136,6 +143,7 @@ var app = new Vue({
 
         if (!response.ok) throw new Error("Order submission failed");
 
+        // Update lesson spaces in the backend after the order
         await Promise.all(
           this.cart.map((lesson) =>
             fetch(
@@ -148,22 +156,29 @@ var app = new Vue({
             )
           )
         );
+
+        // Set state after order submission
         this.submitted = true;
-        this.fetchLessons();
+        this.fetchLessons();  // Refresh lessons to show updated spaces
         setTimeout(() => {
-          this.order = { firstName: "", lastName: "", email: "", state: "", phoneNumber: "" };
-          this.cart = [];
-        }, 100000);
-        this.showModal = true;
+          this.order = { firstName: "", lastName: "", email: "", state: "", phoneNumber: "" }; // Reset the order form
+          this.cart = [];  // Clear the cart
+        }, 100000);  // Delay for reset
+        this.showModal = true;  // Show the confirmation modal
+
       } catch (err) {
         console.error("Failed to submit order", err.message);
       }
     },
+
+    // Close the modal after successful order submission
     doneWithOrder() {
       this.page = "homePage";
       this.showModal = false;
       this.submitted = false;
     },
+
+    // Search lessons based on the query
     async searchLessons() {
       const query = this.searchQuery.trim();
       if (query === "") {
@@ -199,7 +214,7 @@ var app = new Vue({
   },
   mounted() {
     this.fetchLessons().then(() => {
-      this.filteredLessons = [...this.lessons];
+      this.filteredLessons = [...this.lessons];  // Initialize filteredLessons with fetched lessons
     });
   },
 });

@@ -20,7 +20,7 @@
           <a href="#">About</a>
           <a href="#">Contact</a>
         </nav>
-        <button v-if="!isCartEmpty" @click="showCartItems; navitagePages('productPage')" class="cart-button">
+        <button v-if="!isCartEmpty" @click="showCartItems" class="cart-button">
           {{ countCartItems }} <i class="fa fa-cart-plus"></i> Cart
         </button>
         <button v-else disabled class="cart-button disabled">
@@ -83,8 +83,7 @@
         </div>
       </div>
       <div class="checkout-wrapper">
-        <!-- In Cart Section -->
-          <button @click="handleSubmit" class="btn checkout">Checkout</button>
+        <button @click="handleSubmit" class="btn checkout">Checkout</button>
       </div>
     </section>
 
