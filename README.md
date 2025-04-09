@@ -118,5 +118,5 @@ Just open `index.html` in a browser or use Live Server in VS Code.
 
 ## 🙌 Team & Credits
 
-- Developed by [Your Name / Team Members]  
+- Developed by Khaing Nyein San Htet
 - University Coursework – CST3144 Full Stack Web Development
