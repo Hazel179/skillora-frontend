@@ -73,7 +73,7 @@
       <h2 class="section-title">Cart Items</h2>
       <div class="cart-list cart-big">
         <div class="cart-card" v-for="(items, index) in cart" :key="index">
-          <img :src="items.images" class="cart-img" />
+          <img img :src="`https://skillora-server.onrender.com/images/${lesson.images}`" class="cart-img" />
           <div class="cart-info">
             <p>Subject: {{ items.subject }}</p>
             <p>Price: ${{ items.price }}</p>
